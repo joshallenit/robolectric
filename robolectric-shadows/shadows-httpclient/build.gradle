@@ -20,7 +20,7 @@ task generateShadows(type: JavaCompile, description: "Generate shadow classes") 
     options.compilerArgs = [
             "-proc:only",
             "-processor", "org.robolectric.annotation.processing.RobolectricProcessor",
-            "-Aorg.robolectric.annotation.processing.shadowPackage=org.robolectric.httpclient"
+            "-Aorg.robolectric.annotation.processing.shadowPackage=org.robolectric.shadows.httpclient"
     ]
     destinationDir = file("$buildDir/generated-shadows")
 }
