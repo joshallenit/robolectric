@@ -17,7 +17,7 @@ class ShadowsPlugin implements Plugin<Project> {
 
         project.sourceSets.main.java.srcDirs += project.files("${project.buildDir}/generated-shadows")
 
-        project.task("generateShadowProvider", type: JavaCompile) { task ->
+        project.task("generateShadowProvider", type: JavaCompile, description: "Generate Shadows.shadowOf()s class") { task ->
             classpath = project.configurations.compile + project.configurations.robolectricProcessor
             source = project.sourceSets.main.java
             destinationDir = project.file("${project.buildDir}/generated-shadows")
