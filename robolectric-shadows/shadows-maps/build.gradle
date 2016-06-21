@@ -1,5 +1,6 @@
 apply plugin: "java"
 apply from: "../../provided.gradle"
+apply plugin: ShadowsPlugin
 
 sourceCompatibility = JavaVersion.VERSION_1_7
 targetCompatibility = JavaVersion.VERSION_1_7
@@ -9,33 +10,13 @@ repositories {
     mavenCentral()
 }
 
-configurations {
-    shadows
-}
-
-sourceSets.main.java.srcDirs += "${buildDir}/generated-shadows"
-
-task generateShadows(type: JavaCompile, description: "Generate shadow classes") {
-    source = sourceSets.main.java
-    classpath = configurations.compile + configurations.shadows
-    options.compilerArgs = [
-            "-proc:only",
-            "-processor", "org.robolectric.annotation.processing.RobolectricProcessor",
-            "-Aorg.robolectric.annotation.processing.shadowPackage=org.robolectric.shadows.maps"
-    ]
-    destinationDir = file("$buildDir/generated-shadows")
-}
-
-compileJava {
-    dependsOn generateShadows
+shadows {
+    packageName "org.robolectric.shadows.maps"
 }
 
 dependencies {
     compile project(":robolectric")
     compile project(":robolectric-shadows/shadows-core")
-
-    // Run the annotation processor
-    shadows project(":robolectric-processor")
 
     compile "org.robolectric:android-all:6.0.0_r1-robolectric-0"
     compile "com.ibm.icu:icu4j:53.1"

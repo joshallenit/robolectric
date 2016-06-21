@@ -1,5 +1,5 @@
 apply plugin: "java"
-apply from: "../../provided.gradle"
+apply plugin: ShadowsPlugin
 
 sourceCompatibility = JavaVersion.VERSION_1_7
 targetCompatibility = JavaVersion.VERSION_1_7
@@ -9,13 +9,15 @@ repositories {
     mavenCentral()
 }
 
-// todo: run processor
+shadows {
+    packageName "org.robolectric.shadows.multidex"
+}
 
 dependencies {
     compile project(":robolectric")
     compile project(":robolectric-shadows/shadows-core")
 
-    provided "com.android.support:multidex:1.0.1"
+    compile "com.android.support:multidex:1.0.1"
 
 //    compile "org.robolectric:android-all:6.0.0_r1-robolectric-0"
 
