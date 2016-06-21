@@ -12,12 +12,45 @@ configurations {
     shadows
 }
 
-task generateShadows(type: JavaCompile, description: "Generate shadow classes") {
-    source = sourceSets.main.java
+def ANDROID_SDK_MAP = [
+        16: "4.1.2_r1-robolectric-0",
+        17: "4.2.2_r1.2-robolectric-0",
+        18: "4.3_r2-robolectric-0",
+        19: "4.4_r1-robolectric-1",
+        21: "5.0.0_r2-robolectric-1",
+        22: "5.1.1_r9-robolectric-1",
+        23: "6.0.0_r1-robolectric-0",
+]
+
+def ANDROID_SDK_DEFAULT = 23
+
+def androidApi = hasProperty("androidApi") ? ext.androidApi.toInteger() : ANDROID_SDK_DEFAULT
+
+def robolectricVersion = ANDROID_SDK_MAP.get(androidApi)
+println "Android API: $androidApi — $robolectricVersion"
+
+task velocity(type: VelocityTask) {
+    source = sourceSets.main.resources.matching { include "**/*.vm" }
+
+    def api = 23
+    contextValues = [api: api] // todo: ?
+    if (api >= 21) {
+        contextValues.putAll(ptrClass: "long", ptrClassBoxed: "Long")
+    } else {
+        contextValues.putAll(ptrClass: "int", ptrClassBoxed: "Integer")
+    }
+
+    outputDir = file("$buildDir/generated-shadows")
+}
+
+sourceSets.main.java.srcDirs += "${buildDir}/generated-shadows"
+
+task generateShadows(type: JavaCompile, dependsOn: velocity, description: "Generate shadow classes") {
+    source = sourceSets.main.java // + sourceSets.generated.java
     classpath = configurations.compile + configurations.shadows
     options.compilerArgs = [
             "-proc:only",
-            "-processor", "org.robolectric.annotation.processing.RoboProcessor",
+            "-processor", "org.robolectric.annotation.processing.RobolectricProcessor",
             "-Aorg.robolectric.annotation.processing.shadowPackage=org.robolectric"
     ]
     destinationDir = file("$buildDir/generated-shadows")
@@ -25,15 +58,13 @@ task generateShadows(type: JavaCompile, description: "Generate shadow classes") 
 
 compileJava {
     dependsOn generateShadows
-    source file("$buildDir/generated-shadows")
 }
 
 dependencies {
     // Project dependencies
-    compile project(":robolectric")
-    compile project(":robolectric-utils")
-    compile project(":robolectric-resources")
     compile project(":robolectric-annotations")
+    compile project(":robolectric-resources")
+    compile project(":robolectric-utils")
 
     // Run the annotation processor
     shadows project(":robolectric-processor")
@@ -41,7 +72,8 @@ dependencies {
     // Compile dependencies
     compile "com.intellij:annotations:12.0"
     compile "com.almworks.sqlite4java:sqlite4java:0.282"
-    compile "org.robolectric:android-all:5.0.0_r2-robolectric-0"
+    compile "org.robolectric:android-all:$robolectricVersion"
+    compile "com.ibm.icu:icu4j:53.1"
 
     runtime "com.github.axet.litedb:libsqlite:0.282-3:natives-mac-x86_64"
     runtime "com.github.axet.litedb:libsqlite:0.282-3:natives-linux-x86"
@@ -50,6 +82,7 @@ dependencies {
     runtime "com.github.axet.litedb:libsqlite:0.282-3:natives-windows-x86_64"
 
     // Testing dependencies
-    testCompile "junit:junit-dep:4.8.2"
-    testCompile "org.assertj:assertj-core:1.7.0"
+    testCompile "junit:junit:4.8.2"
+    testCompile "org.hamcrest:hamcrest-core:1.3"
+    testCompile "org.assertj:assertj-core:2.0.0"
 }

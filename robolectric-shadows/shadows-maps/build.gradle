@@ -9,15 +9,41 @@ repositories {
     mavenCentral()
 }
 
+configurations {
+    shadows
+}
+
+sourceSets.main.java.srcDirs += "${buildDir}/generated-shadows"
+
+task generateShadows(type: JavaCompile, description: "Generate shadow classes") {
+    source = sourceSets.main.java
+    classpath = configurations.compile + configurations.shadows
+    options.compilerArgs = [
+            "-proc:only",
+            "-processor", "org.robolectric.annotation.processing.RobolectricProcessor",
+            "-Aorg.robolectric.annotation.processing.shadowPackage=org.robolectric.shadows.maps"
+    ]
+    destinationDir = file("$buildDir/generated-shadows")
+}
+
+compileJava {
+    dependsOn generateShadows
+}
+
 dependencies {
     compile project(":robolectric")
     compile project(":robolectric-shadows/shadows-core")
 
-    compile "org.robolectric:android-all:5.0.0_r2-robolectric-0"
+    // Run the annotation processor
+    shadows project(":robolectric-processor")
 
-    provided "com.google.android.maps:maps:18_r3"
+    compile "org.robolectric:android-all:6.0.0_r1-robolectric-0"
+    compile "com.ibm.icu:icu4j:53.1"
 
-    testCompile "junit:junit-dep:4.8.2"
-    testCompile "org.assertj:assertj-core:1.7.0"
+    compile "com.google.android.maps:maps:23_r1"
+
+    testCompile "junit:junit:4.8.2"
+    testCompile "org.hamcrest:hamcrest-core:1.3"
+    testCompile "org.assertj:assertj-core:2.0.0"
     testCompile "org.mockito:mockito-core:1.8.0"
 }

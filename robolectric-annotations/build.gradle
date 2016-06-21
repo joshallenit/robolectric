@@ -11,5 +11,5 @@ repositories {
 dependencies {
     // Compile dependencies
     compile "com.intellij:annotations:12.0"
-    compile "org.robolectric:android-all:5.0.0_r2-robolectric-0"
+    compile "org.robolectric:android-all:6.0.0_r1-robolectric-0"
 }

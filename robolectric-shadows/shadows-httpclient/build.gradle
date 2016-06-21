@@ -12,12 +12,14 @@ configurations {
     shadows
 }
 
+sourceSets.main.java.srcDirs += "${buildDir}/generated-shadows"
+
 task generateShadows(type: JavaCompile, description: "Generate shadow classes") {
     source = sourceSets.main.java
     classpath = configurations.compile + configurations.shadows
     options.compilerArgs = [
             "-proc:only",
-            "-processor", "org.robolectric.annotation.processing.RoboProcessor",
+            "-processor", "org.robolectric.annotation.processing.RobolectricProcessor",
             "-Aorg.robolectric.annotation.processing.shadowPackage=org.robolectric.httpclient"
     ]
     destinationDir = file("$buildDir/generated-shadows")
@@ -25,7 +27,6 @@ task generateShadows(type: JavaCompile, description: "Generate shadow classes") 
 
 compileJava {
     dependsOn generateShadows
-    source file("$buildDir/generated-shadows")
 }
 
 dependencies {
@@ -38,10 +39,11 @@ dependencies {
 
     // Compile dependencies
     compile "org.apache.httpcomponents:httpclient:4.0.3"
-    compile "org.robolectric:android-all:5.0.0_r2-robolectric-0"
+    compile("org.robolectric:android-all:5.1.1_r9-robolectric-0") { force = true }
 
     // Testing dependencies
-    testCompile "junit:junit-dep:4.8.2"
-    testCompile "org.assertj:assertj-core:1.7.0"
+    testCompile "junit:junit:4.8.2"
+    testCompile "org.hamcrest:hamcrest-core:1.3"
+    testCompile "org.assertj:assertj-core:2.0.0"
     testCompile "org.mockito:mockito-core:1.8.0"
 }
