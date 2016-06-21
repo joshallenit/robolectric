@@ -9,10 +9,6 @@ repositories {
     mavenCentral()
 }
 
-configurations {
-    shadows
-}
-
 def ANDROID_SDK_MAP = [
         16: "4.1.2_r1-robolectric-0",
         17: "4.2.2_r1.2-robolectric-0",
@@ -43,8 +39,6 @@ task velocity(type: VelocityTask) {
 
     outputDir = file("$buildDir/generated-shadows")
 }
-
-sourceSets.main.java.srcDirs += "${buildDir}/generated-shadows"
 
 shadows {
     packageName "org.robolectric"
