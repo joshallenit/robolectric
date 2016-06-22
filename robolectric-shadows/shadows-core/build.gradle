@@ -29,9 +29,8 @@ println "Android API: $androidApi — $robolectricVersion"
 task velocity(type: VelocityTask) {
     source = sourceSets.main.resources.matching { include "**/*.vm" }
 
-    def api = 23
-    contextValues = [api: api] // todo: ?
-    if (api >= 21) {
+    contextValues = [api: androidApi]
+    if (androidApi >= 21) {
         contextValues.putAll(ptrClass: "long", ptrClassBoxed: "Long")
     } else {
         contextValues.putAll(ptrClass: "int", ptrClassBoxed: "Integer")

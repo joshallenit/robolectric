@@ -28,8 +28,6 @@ class ShadowsPlugin implements Plugin<Project> {
                         "-processor", "org.robolectric.annotation.processing.RobolectricProcessor",
                         "-Aorg.robolectric.annotation.processing.shadowPackage=${project.shadows.packageName}"
                 )
-
-                println("doFirst! ${task.options.compilerArgs}")
             }
         }
 
